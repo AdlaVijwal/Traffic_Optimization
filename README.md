@@ -2,7 +2,7 @@
 
 An AI-driven, proactive traffic management system that uses Computer Vision to optimize signal timings in real-time. Unlike traditional sensor-based systems, STOS classifies vehicles, calculates pixel-level density, and applies a weighted priority algorithm to reduce congestion and wait times.
 
-## 🚀 Project Architecture
+##Project Architecture
 
 The system is divided into three specialized modules:
 
@@ -18,7 +18,7 @@ The system is divided into three specialized modules:
 
 ---
 
-## 🛠️ Quick Start Guide
+## Quick Start Guide
 
 ### Prerequisites
 *   Python 3.9+
@@ -51,7 +51,7 @@ python scripts/run_stack.py
 
 ---
 
-## 🧠 Core Algorithms
+## Core Algorithms
 
 ### 1. Priority Scoring Formula
 The system calculates a "Urgency Score" for every lane:

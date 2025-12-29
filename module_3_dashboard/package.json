@@ -1,0 +1,42 @@
+{
+  "name": "module-3-smart-traffic-dashboard",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "lint": "eslint \"src/**/*.{ts,tsx}\""
+  },
+  "dependencies": {
+    "@tanstack/react-query": "5.59.0",
+    "axios": "1.7.7",
+    "clsx": "2.1.1",
+    "date-fns": "4.1.0",
+    "framer-motion": "11.5.2",
+    "lucide-react": "0.468.0",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "react-router-dom": "^6.28.0",
+    "recharts": "2.10.4"
+  },
+  "devDependencies": {
+    "@types/node": "22.10.1",
+    "@types/react": "18.3.8",
+    "@types/react-dom": "18.3.3",
+    "@typescript-eslint/eslint-plugin": "8.13.0",
+    "@typescript-eslint/parser": "8.13.0",
+    "@vitejs/plugin-react": "4.3.4",
+    "autoprefixer": "10.4.20",
+    "eslint": "8.57.1",
+    "eslint-plugin-jsx-a11y": "6.9.0",
+    "eslint-plugin-react": "7.37.2",
+    "eslint-plugin-react-hooks": "5.1.0",
+    "globals": "15.10.0",
+    "postcss": "8.4.47",
+    "tailwindcss": "3.4.16",
+    "typescript": "5.6.3",
+    "vite": "5.4.10"
+  }
+}

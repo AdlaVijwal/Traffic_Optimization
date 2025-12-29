@@ -1,0 +1,20 @@
+{
+  "junction_id": "junction_01",
+  "junction_type": "two_way",
+  "directions": [
+    "north"
+  ],
+  "video_sources": {
+    "north": "/Users/vijwaladla/Documents/Projects/Traffic_Optimization/module_1_traffic_detection/observation_videos/north_north_north_north_north_north_north_north_north_north_east.mp4"
+  },
+  "generated_at": "2025-12-29T16:19:19+00:00",
+  "input_mode": "video_upload",
+  "summary": {
+    "direction_totals": {
+      "north": {
+        "north": 6649
+      }
+    },
+    "records_written": 446
+  }
+}

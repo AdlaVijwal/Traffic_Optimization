@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+.env
+.pytest_cache/
+.todo
+
+# Node
+node_modules/
+dist/
+.eslintcache
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project Specific
+models/*.pt
+module_1_traffic_detection/models/*.pt
+module_1_traffic_detection/output_frames/
+module_1_traffic_detection/data/uploads/
+module_2_signal_logic/storage/*.json
+replay_artifacts/
+data/uploads/

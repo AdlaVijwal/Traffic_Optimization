@@ -3,6 +3,7 @@ import { Map as MapIcon, ChevronDown } from "lucide-react";
 import type { DashboardData, LaneDescriptor } from "../../types/dashboard";
 import { formatLaneLabel } from "../../utils/laneLabels";
 import { Panel } from "../common/Panel";
+import { SkeletonLaneMap } from "../common/Skeleton";
 
 type Orientation =
   | "north"
@@ -64,16 +65,15 @@ const orientationPatterns: Record<Orientation, RegExp[]> = {
 };
 
 function detectOrientationFromTokens(
-  tokens: Array<string | undefined>
+  values: Array<string | undefined>
 ): Orientation | undefined {
   for (const orientation of orientationDetectionOrder) {
     const patterns = orientationPatterns[orientation];
-    if (!patterns) continue;
-    for (const token of tokens) {
-      if (!token || typeof token !== "string") {
+    for (const value of values) {
+      if (!value) {
         continue;
       }
-      const normalized = token
+      const normalized = value
         .toLowerCase()
         .replace(/[_-]/g, " ")
         .replace(/\s+/g, " ")
@@ -185,7 +185,7 @@ export function LaneMapPanel({ dashboard }: LaneMapPanelProps) {
   const { context, observations, status } = dashboard;
   const laneAliases = context.laneAliases ?? status.laneAliases ?? {};
   const laneDescriptorMap = useMemo(() => {
-    const map: Map<string, LaneDescriptor> = new Map();
+    const map = new Map<string, LaneDescriptor>();
     context.lanes?.forEach((descriptor) => {
       map.set(descriptor.id, descriptor);
       if (descriptor.original) {
@@ -204,7 +204,7 @@ export function LaneMapPanel({ dashboard }: LaneMapPanelProps) {
   const laneOrderMap = useMemo(() => {
     const descriptors = context.lanes;
     if (!descriptors || descriptors.length === 0) {
-      return new Map();
+      return new Map<string, Orientation>();
     }
     const sorted = [...descriptors].sort((a, b) => {
       const aOrder = typeof a.order === "number" ? a.order : 0;
@@ -226,10 +226,13 @@ export function LaneMapPanel({ dashboard }: LaneMapPanelProps) {
         entries.push([descriptor.label, orientation]);
       }
     });
-    return new Map(entries);
+    return new Map<string, Orientation>(entries);
   }, [context.lanes]);
 
   const laneSummaries = useMemo(() => {
+    const maxVehicles = Math.max(...observations.map((o) => o.vehicleCount), 1);
+    const maxWaitTime = Math.max(...observations.map((o) => o.waitTime), 1);
+
     return observations.map((lane, index) => {
       const label = formatLaneLabel(lane.lane, laneAliases, lane.label);
       const fallbackState: SignalStateKey =
@@ -262,6 +265,19 @@ export function LaneMapPanel({ dashboard }: LaneMapPanelProps) {
         orientationFromTokens ??
         orientationFromOrder ??
         fallbackOrientation(lane.lane, label, index);
+
+      // Calculate congestion level (0-1)
+      const vehicleRatio = lane.vehicleCount / maxVehicles;
+      const waitRatio = lane.waitTime / maxWaitTime;
+      const congestionLevel = vehicleRatio * 0.6 + waitRatio * 0.4;
+
+      // Generate heatmap color
+      const getHeatmapColor = (level: number) => {
+        if (level < 0.3) return "rgba(34, 197, 94, 0.3)"; // green
+        if (level < 0.6) return "rgba(251, 191, 36, 0.4)"; // amber
+        return "rgba(239, 68, 68, 0.5)"; // red
+      };
+
       return {
         id: lane.lane,
         label,
@@ -272,6 +288,8 @@ export function LaneMapPanel({ dashboard }: LaneMapPanelProps) {
         style,
         orientation,
         trend: lane.trend,
+        congestionLevel,
+        heatmapColor: getHeatmapColor(congestionLevel),
       };
     });
   }, [
@@ -323,13 +341,16 @@ export function LaneMapPanel({ dashboard }: LaneMapPanelProps) {
             <div className="relative grid h-full grid-cols-3 grid-rows-3 gap-2 p-4">
               {laneSummaries.map((lane) => {
                 const placement =
-                  (lane.orientation &&
-                    orientationPlacement[lane.orientation as Orientation]) ??
+                  orientationPlacement[lane.orientation] ??
                   orientationPlacement.center;
                 return (
                   <div
                     key={lane.id}
-                    className={`${placement} flex min-w-[120px] flex-col gap-1 rounded-2xl border border-white/10 bg-black/30 p-3 text-white/70 shadow-[0_12px_40px_rgba(4,6,12,0.4)] transition duration-200 hover:-translate-y-1 hover:border-white/20 hover:bg-black/40`}
+                    className={`${placement} flex min-w-[120px] flex-col gap-1 rounded-2xl border border-white/10 p-3 text-white/70 shadow-[0_12px_40px_rgba(4,6,12,0.4)] transition duration-200 hover:-translate-y-1 hover:border-white/20`}
+                    style={{
+                      backgroundColor: `color-mix(in srgb, ${lane.heatmapColor}, rgb(0 0 0 / 0.3))`,
+                      boxShadow: `0 0 20px ${lane.heatmapColor}, 0 12px 40px rgba(4,6,12,0.4)`,
+                    }}
                   >
                     <div className="flex items-center justify-between text-[11px] uppercase tracking-[0.3em]">
                       <span className="text-white/70">{lane.label}</span>

@@ -18,7 +18,6 @@ import {
   Lightbulb,
   Download,
   Upload,
-  Bell,
 } from "lucide-react";
 import { format, differenceInSeconds } from "date-fns";
 

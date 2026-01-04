@@ -8,7 +8,7 @@ import {
 } from "../services/mockData";
 import { OverviewHero } from "../components/overview/OverviewHero";
 import { KpiStatusBanner } from "../components/overview/KpiStatusBanner";
-import { OverviewCommandPanel } from "../components/overview/CommandPanel";
+import { CommandPanel } from "../components/overview/CommandPanel";
 import { LaneMapPanel } from "../components/overview/LaneMapPanel";
 import { SkeletonPanel } from "../components/common/Skeleton";
 
@@ -48,15 +48,7 @@ export function OverviewPage() {
     <div className="flex flex-col gap-8 pb-12">
       <KpiStatusBanner dashboard={dashboard} isFetching={isFetching} />
       <OverviewHero dashboard={dashboard} isFetching={isFetching} />
-      <OverviewCommandPanel
-        dashboard={dashboard}
-        isDashboardFetching={isFetching}
-        manifest={manifest}
-        manifestLoading={outputQuery.isFetching}
-        uploads={uploadsData.uploads}
-        uploadsLoading={uploadsData.isLoading || uploadsData.isFetching}
-        hasActiveRuns={uploadsData.hasActiveRuns}
-      />
+      <CommandPanel dashboard={dashboard} />
       <LaneMapPanel dashboard={dashboard} />
     </div>
   );

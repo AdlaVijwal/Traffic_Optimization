@@ -16,11 +16,13 @@ class ResultsFileIngestor:
 
     def load_recent(self) -> List[LaneSnapshot]:
         if not self.source_path.exists():
+            self._metadata = {}
             return []
 
         try:
             payload = json.loads(self.source_path.read_text())
         except (json.JSONDecodeError, OSError):
+            self._metadata = {}
             return []
 
         records, metadata = self._extract(payload)

@@ -1,5 +1,6 @@
 import { Activity, ArrowRight, Gauge, Timer } from "lucide-react";
 import type { DashboardData } from "../../types/dashboard";
+import { formatLaneLabel } from "../../utils/laneLabels";
 import { Panel } from "../common/Panel";
 
 interface SignalStatusBoardProps {
@@ -7,9 +8,15 @@ interface SignalStatusBoardProps {
 }
 
 export function SignalStatusBoard({ dashboard }: SignalStatusBoardProps) {
-  const { status, priorities, nextPrediction } = dashboard;
+  const { status, priorities, nextPrediction, context } = dashboard;
   const activePriority = priorities.find(
     (item) => item.lane === status.currentGreen
+  );
+  const laneAliases = context.laneAliases ?? status.laneAliases ?? {};
+  const currentLaneLabel = formatLaneLabel(status.currentGreen, laneAliases);
+  const nextLaneLabel = formatLaneLabel(
+    nextPrediction?.lane ?? status.nextLane,
+    laneAliases
   );
 
   return (
@@ -18,10 +25,10 @@ export function SignalStatusBoard({ dashboard }: SignalStatusBoardProps) {
       <div className="relative z-10 grid gap-6 lg:grid-cols-[1.2fr,1fr]">
         <div className="space-y-5">
           <p className="text-xs uppercase tracking-[0.45em] text-white/60">
-            Active cycle
+            Active signal round
           </p>
           <h2 className="text-3xl font-semibold text-white">
-            Green lane {status.currentGreen?.toUpperCase() ?? "--"}
+            Active lane {currentLaneLabel}
           </h2>
           <div className="grid gap-4 md:grid-cols-2">
             <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-white/70">
@@ -33,7 +40,7 @@ export function SignalStatusBoard({ dashboard }: SignalStatusBoardProps) {
                 {status.remainingSeconds.toFixed(0)}s
               </p>
               <p className="text-xs text-white/50">
-                Cycle {status.cycleId ?? "--"}
+                Signal round {status.cycleId ?? "--"}
               </p>
             </div>
             <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-white/70">
@@ -42,9 +49,7 @@ export function SignalStatusBoard({ dashboard }: SignalStatusBoardProps) {
                 Next lane
               </div>
               <p className="mt-2 text-3xl font-semibold text-white">
-                {nextPrediction?.lane.toUpperCase() ??
-                  status.nextLane?.toUpperCase() ??
-                  "TBD"}
+                {nextLaneLabel || "TBD"}
               </p>
               <p className="text-xs text-white/50">
                 Score {nextPrediction?.score?.toFixed(1) ?? "--"}
@@ -55,7 +60,7 @@ export function SignalStatusBoard({ dashboard }: SignalStatusBoardProps) {
             {activePriority ? (
               <div className="space-y-2">
                 <p className="text-sm font-semibold text-white">
-                  Why this lane
+                  Why {currentLaneLabel}
                 </p>
                 <p>Density {activePriority.vehicleCount} vehicles</p>
                 <p>
@@ -67,7 +72,7 @@ export function SignalStatusBoard({ dashboard }: SignalStatusBoardProps) {
                 </p>
               </div>
             ) : (
-              <p>No active priority data. Waiting for telemetry refresh.</p>
+              <p>No active priority data. Waiting for data refresh.</p>
             )}
           </div>
         </div>
@@ -84,8 +89,8 @@ export function SignalStatusBoard({ dashboard }: SignalStatusBoardProps) {
                   className="rounded-xl border border-white/10 bg-black/30 p-3"
                 >
                   <div className="flex items-center justify-between text-sm text-white">
-                    <span className="font-semibold uppercase tracking-wide">
-                      #{index + 1} {item.lane.toUpperCase()}
+                    <span className="font-semibold tracking-wide">
+                      #{index + 1} {formatLaneLabel(item.lane, laneAliases)}
                     </span>
                     <span className="flex items-center gap-1 text-control-accent">
                       <Gauge className="h-4 w-4" />

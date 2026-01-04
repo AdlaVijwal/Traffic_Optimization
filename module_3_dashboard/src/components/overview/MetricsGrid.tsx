@@ -41,12 +41,12 @@ export function MetricsGrid({ dashboard }: MetricsGridProps) {
       <StatCard
         label="Top priority score"
         value={topScore.toFixed(1)}
-        hint="Module 2 decision engine"
+        hint="Signal controller engine"
         icon={<GaugeCircle className="h-4 w-4 text-emerald-300" />}
         accent="success"
       />
       <StatCard
-        label="Cycles today"
+        label="Signal rounds today"
         value={metrics.cyclesExecuted.toLocaleString()}
         hint={`Latency ${status.latencyMs.toFixed(0)} ms`}
         icon={<Activity className="h-4 w-4 text-sky-300" />}

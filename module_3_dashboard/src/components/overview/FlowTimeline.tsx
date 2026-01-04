@@ -33,7 +33,7 @@ export function FlowTimeline({ history }: FlowTimelineProps) {
     <Panel>
       <SectionHeader
         title="Throughput timeline"
-        subtitle="Vehicles processed, wait peaks and green durations per decision cycle"
+        subtitle="Vehicles processed, wait peaks and green durations per signal round"
       />
       <div className="mt-6 h-72">
         <ResponsiveContainer width="100%" height="100%">

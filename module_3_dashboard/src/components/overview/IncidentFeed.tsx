@@ -19,14 +19,14 @@ export function IncidentFeed({ dashboard }: IncidentFeedProps) {
     incidents.push({
       title: "System offline",
       description:
-        "Detector and signal services paused. Start Modules 1 and 2 to resume telemetry.",
+        "Detector and signal services paused. Start the camera analysis and signal controller services to resume live data.",
       icon: "alert",
     });
   }
 
   if (metrics.staleIncidents > 0) {
     incidents.push({
-      title: "Telemetry exceeded freshness budget",
+      title: "Live data exceeded freshness budget",
       description: `${metrics.staleIncidents} occurrences today. Latest allowed age ${metrics.telemetryStaleAfter}s.`,
       icon: "refresh",
     });
@@ -48,7 +48,7 @@ export function IncidentFeed({ dashboard }: IncidentFeedProps) {
     <Panel accent="neutral">
       <SectionHeader
         title="Operator alerts"
-        subtitle="Contextual notices generated from live telemetry"
+        subtitle="Contextual notices generated from the live data feed"
       />
       <div className="mt-5 space-y-3">
         {incidents.length === 0 ? (

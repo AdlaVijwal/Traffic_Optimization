@@ -9,6 +9,7 @@ import type {
 import { Panel } from "../common/Panel";
 import { SectionHeader } from "../common/SectionHeader";
 import { clearOutputFrames } from "../../services/api";
+import { formatLaneLabel } from "../../utils/laneLabels";
 
 const FALLBACK_SVG = `<?xml version="1.0" encoding="UTF-8"?>
 <svg width="640" height="360" viewBox="0 0 640 360" xmlns="http://www.w3.org/2000/svg">
@@ -21,8 +22,8 @@ const FALLBACK_DATA_URL = `data:image/svg+xml,${encodeURIComponent(
 )}`;
 
 interface OutputGalleryProps {
-  manifest: OutputFrameManifest;
-  onRefresh?: () => Promise<void> | void;
+  manifest?: OutputFrameManifest;
+  onRefresh?: () => Promise<unknown> | void;
 }
 
 function resolveFrameCategory(frame: OutputFrameInfo): OutputFrameCategory {
@@ -52,11 +53,13 @@ function FrameCard({
   group,
   isLive = false,
   onClick,
+  laneAliases = {},
 }: {
   frame: OutputFrameInfo;
   group: OutputFrameGroup;
   isLive?: boolean;
   onClick?: () => void;
+  laneAliases?: Record<string, string>;
 }) {
   const [timestamp, setTimestamp] = useState(Date.now());
 
@@ -68,17 +71,40 @@ function FrameCard({
     return () => clearInterval(interval);
   }, [isLive]);
 
+  const appendQueryParam = (
+    url: string,
+    key: string,
+    value: string | number
+  ) => {
+    const separator = url.includes("?") ? "&" : "?";
+    return `${url}${separator}${key}=${encodeURIComponent(String(value))}`;
+  };
+
   const baseUrl = frame.url && frame.url.length > 0 ? frame.url : null;
-  const imageSrc = baseUrl
-    ? isLive
-      ? `${baseUrl}?t=${timestamp}`
-      : baseUrl
+  const versionToken = frame.capturedAt
+    ? new Date(frame.capturedAt).getTime()
+    : frame.id;
+  const withVersion = baseUrl
+    ? appendQueryParam(baseUrl, "v", versionToken ?? Date.now())
     : FALLBACK_DATA_URL;
+  const imageSrc = isLive
+    ? appendQueryParam(withVersion, "ts", timestamp)
+    : withVersion;
+
+  const laneLabel =
+    frame.laneLabel ??
+    laneAliases[frame.lane ?? group.id] ??
+    group.label ??
+    formatLaneLabel(frame.lane ?? group.id, laneAliases, "Lane");
 
   const caption =
     frame.label ??
     frame.annotation ??
-    `${group.label} · ${frame.lane ?? "Lane"}`;
+    `${laneLabel}${
+      frame.capturedAt
+        ? " · " + new Date(frame.capturedAt).toLocaleString()
+        : ""
+    }`;
 
   const isInteractive = typeof onClick === "function";
 
@@ -116,10 +142,10 @@ function FrameCard({
         )}
         <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-4 text-xs text-white/80">
           <p className="font-medium text-white">
-            {frame.label || frame.annotation || group.label}
+            {frame.label || frame.annotation || laneLabel}
           </p>
           <p className="text-white/60">
-            {frame.lane?.toUpperCase() ?? "Lane"}
+            {laneLabel}
             {frame.capturedAt
               ? ` · ${new Date(frame.capturedAt).toLocaleString()}`
               : ""}
@@ -145,9 +171,21 @@ export function OutputGallery({ manifest, onRefresh }: OutputGalleryProps) {
     group: OutputFrameGroup;
   }>();
   const [isClearing, setIsClearing] = useState(false);
+  const laneAliases = manifest?.laneAliases ?? {};
 
-  if (!manifest.groups.length) {
-    return null;
+  if (!manifest || !manifest.groups.length) {
+    return (
+      <Panel>
+        <SectionHeader
+          title="Frame archive"
+          subtitle="Frames populate here once the camera analysis service completes a run"
+        />
+        <div className="mt-6 rounded-2xl border border-white/10 bg-white/5 px-4 py-6 text-center text-sm text-white/60">
+          No output frames available yet. Start an upload to generate fresh
+          evidence.
+        </div>
+      </Panel>
+    );
   }
 
   const closeModal = () => setSelectedFrame(undefined);
@@ -244,6 +282,7 @@ export function OutputGallery({ manifest, onRefresh }: OutputGalleryProps) {
                     onClick={() =>
                       setSelectedFrame({ frame: latestFrame, group })
                     }
+                    laneAliases={laneAliases}
                   />
                 </div>
               </div>
@@ -262,6 +301,7 @@ export function OutputGallery({ manifest, onRefresh }: OutputGalleryProps) {
                       group={group}
                       isLive={false}
                       onClick={() => setSelectedFrame({ frame, group })}
+                      laneAliases={laneAliases}
                     />
                   ))}
                 </div>
@@ -281,6 +321,7 @@ export function OutputGallery({ manifest, onRefresh }: OutputGalleryProps) {
                       group={group}
                       isLive={frame.id.endsWith("-latest")}
                       onClick={() => setSelectedFrame({ frame, group })}
+                      laneAliases={laneAliases}
                     />
                   ))}
                 </div>
@@ -300,6 +341,7 @@ export function OutputGallery({ manifest, onRefresh }: OutputGalleryProps) {
                       group={group}
                       isLive={frame.id.endsWith("-latest")}
                       onClick={() => setSelectedFrame({ frame, group })}
+                      laneAliases={laneAliases}
                     />
                   ))}
                 </div>

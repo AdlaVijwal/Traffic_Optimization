@@ -11,13 +11,13 @@ export function HistoryTable({ history }: HistoryTableProps) {
     <Panel>
       <SectionHeader
         title="Decision history"
-        subtitle="Recent Module 2 cycles with priorities considered"
+        subtitle="Recent signal controller rounds with priorities considered"
       />
       <div className="mt-6 overflow-hidden rounded-2xl border border-white/10">
         <table className="min-w-full divide-y divide-white/5 text-sm text-white/70">
           <thead className="bg-white/5 text-xs uppercase tracking-wide text-white/50">
             <tr>
-              <th className="px-4 py-3 text-left">Cycle</th>
+              <th className="px-4 py-3 text-left">Signal round</th>
               <th className="px-4 py-3 text-left">Green lane</th>
               <th className="px-4 py-3 text-left">Duration</th>
               <th className="px-4 py-3 text-left">Top priorities</th>
@@ -50,8 +50,8 @@ export function HistoryTable({ history }: HistoryTableProps) {
         </table>
         {history.length === 0 ? (
           <div className="bg-black/30 px-4 py-6 text-center text-sm text-white/60">
-            No history captured. Once Module 2 schedules lanes this timeline
-            will populate.
+            No history captured. Once the signal controller schedules lanes this
+            timeline will populate.
           </div>
         ) : null}
       </div>

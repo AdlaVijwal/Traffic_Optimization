@@ -29,8 +29,8 @@ export function LanePressureGrid({ observations }: LanePressureGridProps) {
               className="flex flex-col gap-3 rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-white/70"
             >
               <div className="flex items-center justify-between">
-                <h3 className="text-sm font-semibold uppercase tracking-wide text-white">
-                  {lane.lane.toUpperCase()}
+                <h3 className="text-sm font-semibold tracking-wide text-white">
+                  {lane.label}
                 </h3>
                 {trendIcon}
               </div>

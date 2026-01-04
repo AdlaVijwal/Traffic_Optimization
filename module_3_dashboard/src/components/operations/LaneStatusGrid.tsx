@@ -1,4 +1,5 @@
 import type { DashboardData } from "../../types/dashboard";
+import { formatLaneLabel } from "../../utils/laneLabels";
 import { Panel } from "../common/Panel";
 import { SectionHeader } from "../common/SectionHeader";
 
@@ -7,12 +8,13 @@ interface LaneStatusGridProps {
 }
 
 export function LaneStatusGrid({ dashboard }: LaneStatusGridProps) {
-  const { observations, status } = dashboard;
+  const { observations, status, context } = dashboard;
+  const laneAliases = context.laneAliases ?? status.laneAliases ?? {};
 
   return (
     <Panel>
       <SectionHeader
-        title="Lane telemetry"
+        title="Lane status"
         subtitle="Live counts, wait time, gap and lifetime served for each approach"
       />
       <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -28,7 +30,7 @@ export function LaneStatusGrid({ dashboard }: LaneStatusGridProps) {
             >
               <div className="flex items-center justify-between">
                 <p className="text-sm font-semibold uppercase tracking-wide text-white">
-                  {lane.lane.toUpperCase()}
+                  {lane.label || formatLaneLabel(lane.lane, laneAliases)}
                 </p>
                 <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] uppercase tracking-wide text-white/60">
                   {signalState}

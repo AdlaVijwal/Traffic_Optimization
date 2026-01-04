@@ -1,25 +1,63 @@
 import { useMemo } from "react";
 import { useDashboardData } from "../hooks/useDashboardData";
-import { mockDashboardData } from "../services/mockData";
+import { useOutputFrames } from "../hooks/useOutputFrames";
+import { useUploadsData } from "../hooks/useUploadsData";
+import {
+  mockDashboardData,
+  mockOutputFrameManifest,
+} from "../services/mockData";
 import { OverviewHero } from "../components/overview/OverviewHero";
-import { MetricsGrid } from "../components/overview/MetricsGrid";
-import { LanePressureGrid } from "../components/overview/LanePressureGrid";
-import { FlowTimeline } from "../components/overview/FlowTimeline";
-import { IncidentFeed } from "../components/overview/IncidentFeed";
+import { KpiStatusBanner } from "../components/overview/KpiStatusBanner";
+import { OverviewCommandPanel } from "../components/overview/CommandPanel";
+import { LaneMapPanel } from "../components/overview/LaneMapPanel";
+import { SkeletonPanel } from "../components/common/Skeleton";
 
 export function OverviewPage() {
-  const { data, isFetching } = useDashboardData();
-  const dashboard = useMemo(() => data ?? mockDashboardData(), [data]);
+  const { data, isFetching, isError } = useDashboardData();
+  const dashboard = useMemo(() => {
+    if (data) {
+      return data;
+    }
+    if (isError) {
+      return mockDashboardData();
+    }
+    return null;
+  }, [data, isError]);
+  const outputQuery = useOutputFrames();
+  const manifest = useMemo(() => {
+    if (outputQuery.data) {
+      return outputQuery.data;
+    }
+    if (outputQuery.isError) {
+      return mockOutputFrameManifest();
+    }
+    return undefined;
+  }, [outputQuery.data, outputQuery.isError]);
+  const uploadsData = useUploadsData();
+
+  if (!dashboard) {
+    return (
+      <div className="flex flex-col gap-6 pb-12">
+        <SkeletonPanel />
+        <SkeletonPanel />
+      </div>
+    );
+  }
 
   return (
-    <div className="flex flex-col gap-8 pb-10">
+    <div className="flex flex-col gap-8 pb-12">
+      <KpiStatusBanner dashboard={dashboard} isFetching={isFetching} />
       <OverviewHero dashboard={dashboard} isFetching={isFetching} />
-      <MetricsGrid dashboard={dashboard} />
-      <LanePressureGrid observations={dashboard.observations} />
-      <div className="grid gap-8 xl:grid-cols-[2fr,1fr]">
-        <FlowTimeline history={dashboard.history} />
-        <IncidentFeed dashboard={dashboard} />
-      </div>
+      <OverviewCommandPanel
+        dashboard={dashboard}
+        isDashboardFetching={isFetching}
+        manifest={manifest}
+        manifestLoading={outputQuery.isFetching}
+        uploads={uploadsData.uploads}
+        uploadsLoading={uploadsData.isLoading || uploadsData.isFetching}
+        hasActiveRuns={uploadsData.hasActiveRuns}
+      />
+      <LaneMapPanel dashboard={dashboard} />
     </div>
   );
 }

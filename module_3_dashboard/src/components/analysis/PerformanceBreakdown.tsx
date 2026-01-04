@@ -14,12 +14,13 @@ export function PerformanceBreakdown({ dashboard }: PerformanceBreakdownProps) {
     <Panel>
       <SectionHeader
         title="Performance breakdown"
-        subtitle="Average wait and forecast horizon per lane across retained cycles"
+        subtitle="Average wait and forecast horizon per lane across recent signal rounds"
       />
       <div className="mt-6 space-y-4 text-sm text-white/70">
         {lanes.length === 0 ? (
           <p>
-            No metrics captured yet. Run Module 2 or switch to offline demo.
+            No metrics captured yet. Run the signal controller or switch to
+            offline demo.
           </p>
         ) : (
           lanes.map((lane) => {

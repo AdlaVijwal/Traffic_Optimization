@@ -9,6 +9,12 @@ export interface UploadRun {
   framesProcessed?: number;
   totalFrames?: number;
   notes?: string;
+  siteLabel?: string;
+  cameraLabel?: string;
+  locationLabel?: string;
+  displayName?: string;
+  laneCount?: number;
+  directions?: string[];
 }
 
 export interface FrameManifest {
@@ -22,6 +28,7 @@ export interface OutputFrameInfo {
   id: string;
   url: string;
   lane?: string;
+  laneLabel?: string;
   capturedAt?: string;
   annotation?: string;
   label?: string;
@@ -35,7 +42,17 @@ export interface OutputFrameGroup {
   frames: OutputFrameInfo[];
 }
 
+export interface OutputLaneDescriptor {
+  id: string;
+  label: string;
+  alias?: string;
+  order: number;
+  original?: string;
+}
+
 export interface OutputFrameManifest {
   generatedAt: string;
   groups: OutputFrameGroup[];
+  laneAliases?: Record<string, string>;
+  lanes?: OutputLaneDescriptor[];
 }

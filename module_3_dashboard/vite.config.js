@@ -5,4 +5,16 @@ export default defineConfig({
     server: {
         port: 5173,
     },
+    build: {
+        chunkSizeWarningLimit: 900,
+        rollupOptions: {
+            output: {
+                manualChunks: {
+                    react: ["react", "react-dom", "react-router-dom"],
+                    tanstack: ["@tanstack/react-query"],
+                    lucide: ["lucide-react"],
+                },
+            },
+        },
+    },
 });

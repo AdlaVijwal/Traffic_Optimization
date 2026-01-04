@@ -10,7 +10,7 @@ import type {
 } from "../types/dashboard";
 import type { OutputFrameManifest } from "../types/uploads";
 
-const directions: Direction[] = ["north", "east", "south", "west"];
+const directions: Direction[] = ["lane_1", "lane_2", "lane_3", "lane_4"];
 
 function generateObservation(lane: Direction, step = 0): LaneObservation {
   const base = 12 + Math.round(Math.random() * 10);
@@ -19,6 +19,7 @@ function generateObservation(lane: Direction, step = 0): LaneObservation {
   const forecast = Math.max(0, base + Math.random() * 10 - step * 2);
   return {
     lane,
+    label: lane.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase()),
     vehicleCount: base + step,
     classBreakdown: {
       car: Math.round(base * 0.6),
@@ -125,6 +126,30 @@ export function mockDashboardData(statusOverride?: Partial<SignalStatus>): Dashb
     priorities,
     nextPrediction: priorities[0] ?? null,
     isOffline: false,
+    context: {
+      displayName: status.junctionId ? `Junction ${status.junctionId}` : "Traffic feed",
+      laneCount: status.directions.length,
+      mode: status.mode,
+      junctionType: status.junctionType,
+      directions: status.directions,
+      upload: {
+        id: "mock-run-001",
+        status: "processing",
+        analysisType: "single",
+        siteLabel: "Downtown Hub",
+        cameraLabel: "Northbound Pole A",
+        locationLabel: "5th Ave & Pine St",
+        laneCount: 1,
+        createdAt: formatISO(new Date(Date.now() - 5 * 60_000)),
+        notes: "Pilot lane calibration with low-light conditions",
+        displayName: "Downtown Hub - Camera A",
+      },
+      source: {
+        junctionId: status.junctionId,
+        inputMode: "synthetic",
+        videoSources: null,
+      },
+    },
   };
 }
 

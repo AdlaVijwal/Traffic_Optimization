@@ -19,6 +19,7 @@ class SignalScheduler:
     def __init__(self, config: Optional[SchedulerConfig] = None) -> None:
         self.config = config or SchedulerConfig()
         self._cycle_counter = 0
+        self._last_green_lane: Optional[str] = None  # Track last green lane
 
     def next_cycle(
         self,
@@ -31,13 +32,25 @@ class SignalScheduler:
         def _sorting_key(item: PriorityBreakdown) -> tuple:
             return (item.score, item.waiting_time, item.vehicle_count)
 
-        top_breakdown = max(priorities.values(), key=_sorting_key)
+        # Sort all lanes by priority
+        ordered_priorities = sorted(priorities.values(), key=_sorting_key, reverse=True)
+        
+        # STRICT ALTERNATION RULE: Never allow same lane twice in a row
+        # This ensures realistic traffic light behavior
+        top_breakdown = ordered_priorities[0]
+        
+        # If the top priority lane is the same as last green, skip to next lane
+        if self._last_green_lane and top_breakdown.lane == self._last_green_lane and len(ordered_priorities) > 1:
+            top_breakdown = ordered_priorities[1]  # Use second-highest priority
+        
+        # Update last green lane tracker
+        self._last_green_lane = top_breakdown.lane
+        
         total_vehicles = sum(max(b.vehicle_count, 0) for b in priorities.values())
         ratio = (top_breakdown.vehicle_count / total_vehicles) if total_vehicles else 0.0
 
         proposed_green = self.config.base_green + ratio * self.config.scaling_factor
         green_duration = max(self.config.min_green, min(self.config.max_green, proposed_green))
-        ordered_priorities = sorted(priorities.values(), key=_sorting_key, reverse=True)
 
         self._cycle_counter += 1
         effective_from = decided_at

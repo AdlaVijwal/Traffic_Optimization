@@ -3,17 +3,18 @@ import type { OutputFrameManifest } from "../../types/uploads";
 import { Panel } from "../common/Panel";
 
 interface OutputHeroProps {
-  manifest: OutputFrameManifest;
+  manifest?: OutputFrameManifest;
   isFetching: boolean;
 }
 
 export function OutputHero({ manifest, isFetching }: OutputHeroProps) {
-  const totalGroups = manifest.groups.length;
-  const totalFrames = manifest.groups.reduce(
+  const groups = manifest?.groups ?? [];
+  const totalGroups = groups.length;
+  const totalFrames = groups.reduce(
     (acc, group) => acc + group.frames.length,
     0
   );
-  const latestCapture = manifest.groups
+  const latestCapture = groups
     .flatMap((group) => group.frames)
     .reduce<string | undefined>((latest, frame) => {
       if (!frame.capturedAt) {
@@ -37,7 +38,7 @@ export function OutputHero({ manifest, isFetching }: OutputHeroProps) {
             Processed evidence wall
           </p>
           <h1 className="text-4xl font-semibold text-white md:text-5xl">
-            Module 1 output frames
+            Camera analysis output frames
           </h1>
           <p className="max-w-2xl text-base text-white/70">
             Review the annotated frames produced after detection. Each tile
@@ -51,11 +52,13 @@ export function OutputHero({ manifest, isFetching }: OutputHeroProps) {
             </span>
             <span className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2">
               <Images className="h-4 w-4 text-sky-300" />
-              {totalGroups} approaches
+              {totalGroups} lanes
             </span>
             <span className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2">
               <CloudLightning className="h-4 w-4 text-emerald-300" />
-              Updated {new Date(manifest.generatedAt).toLocaleString()}
+              {manifest?.generatedAt
+                ? `Updated ${new Date(manifest.generatedAt).toLocaleString()}`
+                : "Awaiting output"}
             </span>
             {latestCapture ? (
               <span className="rounded-full border border-white/10 bg-white/5 px-4 py-2">
@@ -76,8 +79,8 @@ export function OutputHero({ manifest, isFetching }: OutputHeroProps) {
           </p>
           <ul className="mt-4 space-y-3 text-sm leading-relaxed">
             <li>
-              Module 1 captures inference output frames for each direction and
-              stores them in the media bucket.
+              The camera analysis service captures detection output frames for
+              each active lane and stores them in the media bucket.
             </li>
             <li>
               Each frame is tagged with the predicted lane, vehicle count and

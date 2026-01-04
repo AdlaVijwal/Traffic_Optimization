@@ -6,9 +6,11 @@ import {
   Images,
   Layers,
   UploadCloud,
+  Radio,
 } from "lucide-react";
 
 const navLinks = [
+  { to: "/live", label: "Live Signaling", icon: Radio },
   { to: "/overview", label: "Overview", icon: CloudLightning },
   { to: "/operations", label: "Operations", icon: Activity },
   { to: "/analysis", label: "Analysis", icon: BarChart3 },

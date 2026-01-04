@@ -1,7 +1,8 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchOutputFrameManifest, fetchUploadRuns } from "../services/api";
 
 export function useUploadsData() {
+  const queryClient = useQueryClient();
   const uploadsQuery = useQuery({
     queryKey: ["uploads"],
     queryFn: fetchUploadRuns,
@@ -22,6 +23,9 @@ export function useUploadsData() {
     manifest: manifestQuery.data,
     isManifestLoading: manifestQuery.isLoading,
     refetchUploads: uploadsQuery.refetch,
+    refetchManifest: manifestQuery.refetch,
+    clearManifest: () =>
+      queryClient.removeQueries({ queryKey: ["output-frame-manifest"] }),
     hasActiveRuns: (uploadsQuery.data ?? []).some((run) =>
       run.status === "processing" || run.status === "pending"
     ),

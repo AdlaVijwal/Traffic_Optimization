@@ -18,11 +18,18 @@ dist/
 .DS_Store
 Thumbs.db
 
+# Markdown files (except README.md)
+*.md
+!README.md
+docs/*.md
+!docs/README.md
+
 # Project Specific
 models/*.pt
 module_1_traffic_detection/models/*.pt
 module_1_traffic_detection/output_frames/
 module_1_traffic_detection/data/uploads/
+module_1_traffic_detection/sample_videos/*.mp4
 module_2_signal_logic/storage/*.json
 replay_artifacts/
 data/uploads/
